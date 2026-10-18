@@ -121,6 +121,11 @@ namespace cAlgo.Robots
         [Parameter("Risk Per Trade (%)", DefaultValue = 0.75, MinValue = 0.05, MaxValue = 5.0, Group = "Risk")]
         public double RiskPercent { get; set; }
 
+        // Caps the position so its estimated margin stays below this share of free margin.
+        // Tight stops at high risk % can otherwise ask for more leverage than a prop account gives.
+        [Parameter("Max Margin Use (% of free margin)", DefaultValue = 50.0, MinValue = 5, MaxValue = 100, Group = "Risk")]
+        public double MaxMarginUsePct { get; set; }
+
         [Parameter("Max Consecutive Losses Today", DefaultValue = 2, MinValue = 1, Group = "Risk")]
         public int MaxConsecutiveLosses { get; set; }        // circuit breaker: stops trading today after 2 losses
 
@@ -789,7 +794,18 @@ namespace cAlgo.Robots
             var riskAmount = Account.Balance * RiskPercent / 100.0;
             var perUnitRisk = stopPips * Symbol.PipValue;
             if (perUnitRisk <= 0) return 0;
-            return Symbol.NormalizeVolumeInUnits(riskAmount / perUnitRisk, RoundingMode.Down);
+            var volume = Symbol.NormalizeVolumeInUnits(riskAmount / perUnitRisk, RoundingMode.Down);
+
+            // Margin guard: scale down if the estimated margin would exceed the allowed share of free margin
+            var marginPerUnit = Symbol.GetEstimatedMargin(TradeType.Buy, Symbol.VolumeInUnitsMin) / Symbol.VolumeInUnitsMin;
+            var maxByMargin = marginPerUnit > 0 ? Account.FreeMargin * MaxMarginUsePct / 100.0 / marginPerUnit : double.MaxValue;
+            if (volume > maxByMargin)
+            {
+                var capped = Symbol.NormalizeVolumeInUnits(maxByMargin, RoundingMode.Down);
+                Print($"MARGIN GUARD: risk-based volume {volume} needs more than {MaxMarginUsePct:F0}% of free margin — capped to {capped}.");
+                volume = capped;
+            }
+            return volume;
         }
 
         private TradeType? GetMarketDirection()

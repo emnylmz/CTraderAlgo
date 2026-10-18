@@ -1,0 +1,36 @@
+{
+  "Chart": {
+    "Symbol": "XAUUSD",
+    "Period": "h1"
+  },
+  "Parameters": {
+    "SignalMode": 0,
+    "RangeWindowMinutes": 180,
+    "MinRangeUsd": 0.0,
+    "UseTrendFilter": true,
+    "TrendTimeFrame": "h1",
+    "TrendEmaPeriod": 50,
+    "MaxOpenPositions": 1,
+    "CooldownMinutes": 0,
+    "WindowStartStr": "01:00",
+    "WindowEndStr": "22:00",
+    "MondayStartStr": "02:00",
+    "FridayLastEntryStr": "16:00",
+    "FridayFlatStr": "18:30",
+    "MaxSpreadUsd": 0.8,
+    "MaxTradesPerDay": 3,
+    "RiskPercent": 1.25,
+    "StopUsd": 60.0,
+    "TakeProfitUsd": 120.0,
+    "BeTriggerUsd": 0.0,
+    "BeOffsetUsd": 0.5,
+    "MaxHoldHours": 0,
+    "InitialBalanceOverride": 0.0,
+    "DailyLossCutoffPct": 4.0,
+    "OverallLossCutoffPct": 9.0,
+    "MaxConsecutiveLosses": 2,
+    "MaxOrderOpsPerDay": 200,
+    "NewsBlackoutStr": "",
+    "NewsFlattenMinsBefore": 5
+  }
+}
